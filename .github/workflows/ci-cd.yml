@@ -6,14 +6,14 @@ on:
       - main
 
 jobs:
-  # 1️⃣ Build and Test
+  # 1️⃣ Build & Test Backend and Frontend
   build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -23,7 +23,7 @@ jobs:
         working-directory: ./server
         run: npm ci
 
-      - name: Build backend (optional if needed)
+      - name: Build backend (if needed)
         working-directory: ./server
         run: npm run build || echo "No backend build script"
 
@@ -55,9 +55,11 @@ jobs:
       - name: Deploy frontend to Netlify
         run: |
           cd client
-          npm ci
-          npm run build
-          npx netlify deploy --dir=dist --prod --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --site ${{ secrets.NETLIFY_SITE_ID }}
+          npx netlify deploy \
+            --dir=dist \
+            --prod \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --site ${{ secrets.NETLIFY_SITE_ID }}
 
   # 3️⃣ Deploy backend to Render
   deploy-backend:
