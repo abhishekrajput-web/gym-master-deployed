@@ -6,6 +6,7 @@ on:
       - main
 
 jobs:
+  # 1️⃣ Build and Test
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -17,11 +18,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install backend deps
+      # Backend
+      - name: Install backend dependencies
         working-directory: ./server
         run: npm ci
 
-      - name: Install frontend deps
+      - name: Build backend (optional if needed)
+        working-directory: ./server
+        run: npm run build || echo "No backend build script"
+
+      # Frontend
+      - name: Install frontend dependencies
         working-directory: ./client
         run: npm ci
 
@@ -29,6 +36,7 @@ jobs:
         working-directory: ./client
         run: npm run build
 
+  # 2️⃣ Deploy frontend to Netlify
   deploy-frontend:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -36,16 +44,22 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Deploy to Netlify
-        uses: jsmrcaga/action-netlify-deploy@v2.0.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          build_directory: client/dist
-          install_command: npm ci
-          build_command: npm run build
-          NETLIFY_DEPLOY_TO_PROD: true
+          node-version: 20
 
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
+
+      - name: Deploy frontend to Netlify
+        run: |
+          cd client
+          npm ci
+          npm run build
+          npx netlify deploy --dir=dist --prod --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --site ${{ secrets.NETLIFY_SITE_ID }}
+
+  # 3️⃣ Deploy backend to Render
   deploy-backend:
     needs: build-and-test
     runs-on: ubuntu-latest
