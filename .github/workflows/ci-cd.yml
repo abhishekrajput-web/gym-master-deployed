@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  # 1️⃣ Build & Test Backend and Frontend
+  # 1️⃣ Build & Test Backend and Frontends
   build-and-test:
     runs-on: ubuntu-latest
     steps:
