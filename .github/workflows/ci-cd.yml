@@ -54,12 +54,14 @@ jobs:
 
       - name: Deploy frontend to Netlify
         run: |
-          cd client
-          npx netlify deploy \
-            --dir=dist \
-            --prod \
-            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --site ${{ secrets.NETLIFY_SITE_ID }}
+         cd client
+         npm install --include=dev
+         npm run build
+         npx netlify deploy \
+          --dir=dist \
+          --prod \
+          --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+          --site ${{ secrets.NETLIFY_SITE_ID }}
 
   # 3️⃣ Deploy backend to Render
   deploy-backend:
